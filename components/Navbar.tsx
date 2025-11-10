@@ -1,4 +1,4 @@
-export default function Navbar(){
+export default function Navbar() {
   return (
     <div className="nav-fixed">
       <div className="nav-inner">
@@ -17,5 +17,5 @@ export default function Navbar(){
         </div>
       </div>
     </div>
-  )
+  );
 }
