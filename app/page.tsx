@@ -55,6 +55,7 @@ export default function Page() {
                 href="https://payroll.mediafinance.ai/"
                 target="_blank"
                 rel="noreferrer"
+                data-protect="1"
               >
                 Payroll Builder
               </a>
@@ -65,6 +66,7 @@ export default function Page() {
                 href="https://flash.mediafinance.ai/"
                 target="_blank"
                 rel="noreferrer"
+                data-protect="1"
               >
                 Flash Budget Builder
               </a>
@@ -109,5 +111,5 @@ export default function Page() {
         </div>
       </section>
     </div>
-  );
+  )
 }
