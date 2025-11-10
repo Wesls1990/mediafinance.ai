@@ -6,10 +6,10 @@ import Footer from '../components/Footer'
 import PassProtect from '../components/PassProtect'
 
 export const metadata = {
-  title: 'Media Finance.Ai — Flash',
+  title: 'Media Finance.Ai',
   description: 'The future of film budgeting. AI-driven. Studio-compliant.',
   icons: { icon: '/logo.png' },
-  openGraph: { title: 'Media Finance.Ai — Flash', images: ['/logo.png'] }
+  openGraph: { title: 'Media Finance.Ai', images: ['/logo.png'] }
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
