@@ -1,52 +1,50 @@
-export default function Page(){
+export default function Page() {
   return (
     <div className="space-y-20">
-{/* Hero */}
-<section className="text-center pt-6">
-  <img
-    src="/logo.png"
-    alt="Media Finance AI"
-    className="mx-auto mb-3"
-    style={{
-      width: 'clamp(120px, 20vw, 260px)', // scales smoothly from mobile to desktop
-      height: 'auto',
-    }}
-  />
+      {/* Hero */}
+      <section className="text-center pt-6">
+        {/* Full logo */}
+        <img
+          src="/logo.png"
+          alt="Media Finance AI"
+          className="mx-auto mb-6"
+          style={{ width: 'clamp(140px, 22vw, 280px)', height: 'auto' }}
+        />
 
-  <div className="inline-block card px-4 py-1 small">
-    AI budgeting • Compliance • Incentives • VAT
-  </div>
+        {/* Headline */}
+        <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight drop-shadow leading-tight">
+          Financial Intelligence for{' '}
+          <span
+            className="bg-clip-text text-transparent"
+            style={{
+              backgroundImage: 'linear-gradient(90deg,#8b5cf6,#3b82f6)',
+            }}
+          >
+            the Media Industry
+          </span>
+        </h1>
 
-  <h1 className="mt-4 text-3xl sm:text-5xl font-semibold tracking-tight drop-shadow">
-    The future of film budgeting
-  </h1>
-
-  <p className="mt-3 text-lg text-gray-300 max-w-2xl mx-auto">
-    AI-driven. Studio-compliant. Built for Line Producers, Production
-    Accountants and Finance Execs.
-  </p>
-
-  <div className="mt-6 flex items-center justify-center gap-3">
-    <a className="button" href="#demos">
-      See demo links
-    </a>
-    <a
-      className="button"
-      href="#contact"
-      style={{ background: 'linear-gradient(90deg,#22c55e,#10b981)' }}
-    >
-      Contact
-    </a>
-  </div>
-</section>
+        {/* Subhead (suite of approved + tested tools) */}
+        <p className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto">
+          A suite of approved, tested tools for production accountants and finance teams—covering
+          payroll, flash budgeting, VAT, AP matching and compliance—fast, accurate, and studio-ready.
+        </p>
+      </section>
 
       {/* About */}
       <section id="about" className="max-w-3xl mx-auto">
         <div className="card p-6">
-          <h2 className="text-xl font-medium mb-2">About</h2>
+          <h2 className="text-xl font-medium mb-3">About MediaFinance.Ai</h2>
+          <p className="text-gray-200 mb-3">
+            MediaFinance.Ai builds practical, production-proven finance tools for film & HETV. Our goal is
+            simple: streamline complex financial workflows so crews can move faster with fewer errors and full
+            auditability. Founded by working production accountants, we design for real-world pressures—tight
+            timelines, changing schedules, and strict studio compliance.
+          </p>
           <p className="text-gray-300">
-            Media Finance AI builds cloud-first tools for film & HETV finance: Budget Builder, Top Sheet Generator,
-            VAT Checker, Payroll, Scenario Planning, and Compliance Guardrails. Aligned with studio manuals and UK/EU/US incentives.
+            The platform includes Payroll Builder, Flash Budget Builder, VAT Checker, and AP Matcher—each aligned
+            to studio manuals and UK/EU/US incentive requirements. Expect clean exports, standardised charts of
+            accounts, approval guardrails, and reporting packs that hold up to audit.
           </p>
         </div>
       </section>
@@ -56,10 +54,26 @@ export default function Page(){
         <div className="card p-6">
           <h2 className="text-xl font-medium mb-3">Demo Links</h2>
           <ul className="grid sm:grid-cols-2 gap-3 text-sm">
-            <li><a className="button w-full" href="https://vat-checker.flash.mediafinance.ai" target="_blank" rel="noreferrer">VAT Checker</a></li>
-            <li><a className="button w-full" href="https://budget-builder.flash.mediafinance.ai" target="_blank" rel="noreferrer">Budget Builder (AI)</a></li>
-            <li><a className="button w-full" href="https://top-sheet.flash.mediafinance.ai" target="_blank" rel="noreferrer">Top Sheet Generator</a></li>
-            <li><a className="button w-full" href="mailto:hello@mediafinance.ai">More on request</a></li>
+            <li>
+              <a className="button w-full" href="#" target="_blank" rel="noreferrer">
+                Payroll Builder
+              </a>
+            </li>
+            <li>
+              <a className="button w-full" href="#" target="_blank" rel="noreferrer">
+                Flash Budget Builder
+              </a>
+            </li>
+            <li>
+              <a className="button w-full" href="#" target="_blank" rel="noreferrer">
+                AP Matcher
+              </a>
+            </li>
+            <li>
+              <a className="button w-full" href="#" target="_blank" rel="noreferrer">
+                VAT Checker
+              </a>
+            </li>
           </ul>
         </div>
       </section>
@@ -68,11 +82,23 @@ export default function Page(){
       <section id="contact" className="max-w-3xl mx-auto">
         <div className="card p-6">
           <h2 className="text-xl font-medium mb-2">Contact</h2>
-        <p className="text-gray-300">
-            Email <a className="underline" href="mailto:hello@mediafinance.ai">hello@mediafinance.ai</a> to book a walkthrough or request access.
+          <p className="text-gray-300 mb-3">
+            Want a quick walkthrough or sandbox access? Drop us a line—our team will share a short demo and
+            set you up with a trial environment tailored to your production.
           </p>
+
+          <div className="grid sm:grid-cols-2 gap-3 text-sm">
+            <div className="card p-4">
+              <div className="font-semibold mb-1">David Blank — Co-Founder</div>
+              <a className="underline" href="mailto:david@mediafinance.ai">david@mediafinance.ai</a>
+            </div>
+            <div className="card p-4">
+              <div className="font-semibold mb-1">Laurence West — Co-Founder</div>
+              <a className="underline" href="mailto:laurence@mediafinance.ai">laurence@mediafinance.ai</a>
+            </div>
+          </div>
         </div>
       </section>
     </div>
-  )
+  );
 }
