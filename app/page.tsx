@@ -3,12 +3,11 @@ export default function Page() {
     <div className="space-y-20">
       {/* Hero */}
       <section className="relative text-center pt-24 pb-12">
-        {/* subtle background gradient for depth */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0b0b0d]/40 to-transparent pointer-events-none"></div>
 
         <img
           src="/logo.png"
-          alt="Media Finance AI"
+          alt="Media Finance.Ai"
           className="mx-auto mb-8 relative z-10"
           style={{ width: 'clamp(160px, 22vw, 280px)', height: 'auto' }}
         />
@@ -84,13 +83,13 @@ export default function Page() {
       {/* Contact */}
       <section id="contact" className="max-w-3xl mx-auto">
         <div className="card p-6">
-          <h2 className="text-xl font-medium mb-3 text-center">Contact</h2>
-          <p className="text-gray-300 mb-5 text-center">
+          <h2 className="text-xl font-medium mb-3 text-left">Contact</h2>
+          <p className="text-gray-300 mb-5 text-left">
             Want a quick walkthrough or sandbox access? Drop us a line—our team will share a short demo and
             set you up with a trial environment tailored to your production.
           </p>
 
-          <div className="grid sm:grid-cols-2 gap-3 text-sm">
+          <div className="grid sm:grid-cols-2 gap-3 text-sm justify-center">
             <div className="card p-4 text-center">
               <div className="font-semibold mb-1">David Blank — Co-Founder</div>
               <a className="underline" href="mailto:david@mediafinance.ai">
