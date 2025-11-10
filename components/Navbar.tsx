@@ -6,13 +6,16 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-14">
             {/* Brand */}
             <a href="/" className="flex items-center gap-2" aria-label="Media Finance AI – Home">
-              {/* Use your uploaded white transparent logo */}
+              {/* updated white logo without text */}
               <img
-                src="/logo-white.png"
+                src="/logo-icon.png"
                 alt="Media Finance AI"
                 className="w-6 h-6"
               />
-              <span className="font-semibold tracking-tight">Media Finance AI</span>
+              {/* Brand text with purple “Ai” */}
+              <span className="font-semibold tracking-tight">
+                Media Finance <span style={{ color: '#8b5cf6' }}>Ai</span>
+              </span>
             </a>
 
             {/* Nav */}
