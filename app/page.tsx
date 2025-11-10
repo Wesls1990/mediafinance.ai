@@ -2,13 +2,13 @@ export default function Page() {
   return (
     <div className="space-y-20">
       {/* Hero */}
-      <section className="relative text-center pt-24 pb-12">
+      <section className="relative text-center pt-20 pb-8">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0b0b0d]/40 to-transparent pointer-events-none"></div>
 
         <img
           src="/logo.png"
           alt="Media Finance.Ai"
-          className="mx-auto mb-8 relative z-10"
+          className="mx-auto mb-6 relative z-10"
           style={{ width: 'clamp(160px, 22vw, 280px)', height: 'auto' }}
         />
 
@@ -42,9 +42,12 @@ export default function Page() {
       </section>
 
       {/* Demo Links */}
-      <section id="demos" className="max-w-3xl mx-auto text-center">
+      <section id="demos" className="max-w-3xl mx-auto">
         <div className="card p-6">
-          <h2 className="text-xl font-medium mb-3">Demo Links</h2>
+          <h2 className="text-xl font-medium mb-2 text-left">Demo Links</h2>
+          <p className="text-sm text-gray-300 mb-4 text-left">
+            Working prototypes you can click through now. These are live builds shaped by real productions—expect rapid iteration.
+          </p>
           <ul className="grid sm:grid-cols-2 gap-3 justify-center place-items-center text-sm">
             <li>
               <a
@@ -85,8 +88,8 @@ export default function Page() {
         <div className="card p-6">
           <h2 className="text-xl font-medium mb-3 text-left">Contact</h2>
           <p className="text-gray-300 mb-5 text-left">
-            Want a quick walkthrough or sandbox access? Drop us a line—our team will share a short demo and
-            set you up with a trial environment tailored to your production.
+            We’re production accountants turned toolmakers—enthusiastic inventors focused on making film finance better.
+            If you want a quick spin-through or a sandbox, drop us a line and we’ll tailor a short demo to your workflow.
           </p>
 
           <div className="grid sm:grid-cols-2 gap-3 text-sm justify-center">
