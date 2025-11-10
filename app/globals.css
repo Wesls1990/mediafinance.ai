@@ -88,3 +88,7 @@ main{ padding-top:calc(var(--nav-h) + 32px); }
 /* nav links */
 .nav-link{ opacity:.9; transition:opacity .15s ease }
 .nav-link:hover{ opacity:1 }
+/* Center all text on small screens */
+@media (max-width: 640px) {
+  section, h1, h2, p { text-align: center; }
+}
