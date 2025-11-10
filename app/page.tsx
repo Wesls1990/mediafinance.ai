@@ -4,11 +4,11 @@ export default function Page(){
 {/* Hero */}
 <section className="text-center pt-6">
   <img
-    src="/logo-icon.png"
+    src="/logo.png"
     alt="Media Finance AI"
-    className="mx-auto mb-3 rounded"
+    className="mx-auto mb-3"
     style={{
-      width: 'clamp(72px, 12vw, 160px)', // responsive: 72px mobile → 160px desktop
+      width: 'clamp(120px, 20vw, 260px)', // scales smoothly from mobile to desktop
       height: 'auto',
     }}
   />
