@@ -3,7 +3,6 @@ export default function Page() {
     <div className="space-y-20">
       {/* Hero */}
       <section className="text-center pt-6">
-        {/* Full logo */}
         <img
           src="/logo.png"
           alt="Media Finance AI"
@@ -11,20 +10,18 @@ export default function Page() {
           style={{ width: 'clamp(140px, 22vw, 280px)', height: 'auto' }}
         />
 
-        {/* Headline */}
         <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight drop-shadow leading-tight">
-          Financial Intelligence for{' '}
+          Financial Intelligence for{" "}
           <span
             className="bg-clip-text text-transparent"
             style={{
-              backgroundImage: 'linear-gradient(90deg,#8b5cf6,#3b82f6)',
+              backgroundImage: "linear-gradient(90deg,#8b5cf6,#3b82f6)",
             }}
           >
             the Media Industry
           </span>
         </h1>
 
-        {/* Subhead (suite of approved + tested tools) */}
         <p className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto">
           A suite of approved, tested tools for production accountants and finance teams—covering
           payroll, flash budgeting, VAT, AP matching and compliance—fast, accurate, and studio-ready.
@@ -55,22 +52,22 @@ export default function Page() {
           <h2 className="text-xl font-medium mb-3">Demo Links</h2>
           <ul className="grid sm:grid-cols-2 gap-3 text-sm">
             <li>
-              <a className="button w-full" href="#" target="_blank" rel="noreferrer">
+              <a className="button w-full" href="https://payroll.mediafinance.ai/" target="_blank" rel="noreferrer">
                 Payroll Builder
               </a>
             </li>
             <li>
-              <a className="button w-full" href="#" target="_blank" rel="noreferrer">
+              <a className="button w-full" href="https://flash.mediafinance.ai/" target="_blank" rel="noreferrer">
                 Flash Budget Builder
               </a>
             </li>
             <li>
-              <a className="button w-full" href="#" target="_blank" rel="noreferrer">
+              <a className="button w-full" href="/coming-soon-ap" target="_blank" rel="noreferrer">
                 AP Matcher
               </a>
             </li>
             <li>
-              <a className="button w-full" href="#" target="_blank" rel="noreferrer">
+              <a className="button w-full" href="/coming-soon-vat" target="_blank" rel="noreferrer">
                 VAT Checker
               </a>
             </li>
