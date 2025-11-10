@@ -46,7 +46,7 @@ export default function Page() {
         <div className="card p-6">
           <h2 className="text-xl font-medium mb-3">Demo Links</h2>
           <ul className="grid sm:grid-cols-2 gap-3 text-sm">
-            <li><a className="button w-full" href="https://payroll.mediafinance.ai/" target="_blank" rel="noreferrer">Payroll Builder</a></li>
+            <li><a className="button w-full" href="https://payroll.mediafinance.ai/" target="_blank" rel="noreferrer">Payroll Checker</a></li>
             <li><a className="button w-full" href="https://flash.mediafinance.ai/" target="_blank" rel="noreferrer">Flash Budget Builder</a></li>
             <li><a className="button w-full" href="/coming-soon-ap">AP Matcher</a></li>
             <li><a className="button w-full" href="/coming-soon-vat">VAT Checker</a></li>
