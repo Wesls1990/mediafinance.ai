@@ -2,16 +2,18 @@ export default function Page() {
   return (
     <div className="space-y-20">
       {/* Hero */}
-      <section className="text-center pt-6">
+      <section className="relative text-center pt-24 pb-12">
+        {/* subtle background gradient for depth */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0b0b0d]/40 to-transparent pointer-events-none"></div>
+
         <img
           src="/logo.png"
           alt="Media Finance AI"
-          className="mx-auto mb-6"
-          style={{ width: 'clamp(140px, 22vw, 280px)', height: 'auto' }}
+          className="mx-auto mb-8 relative z-10"
+          style={{ width: 'clamp(160px, 22vw, 280px)', height: 'auto' }}
         />
 
-        {/* Split headline across two lines + extra padding below */}
-        <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight drop-shadow leading-tight">
+        <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight drop-shadow leading-tight relative z-10">
           Financial Intelligence for
           <br />
           <span
@@ -22,8 +24,7 @@ export default function Page() {
           </span>
         </h1>
 
-        {/* Shorter subhead */}
-        <p className="mt-4 mb-4 text-lg text-gray-300 max-w-3xl mx-auto">
+        <p className="mt-4 mb-4 text-lg text-gray-300 max-w-3xl mx-auto relative z-10">
           A suite of approved, tested tools for production accountants and finance teams.
         </p>
       </section>
@@ -42,14 +43,40 @@ export default function Page() {
       </section>
 
       {/* Demo Links */}
-      <section id="demos" className="max-w-3xl mx-auto">
+      <section id="demos" className="max-w-3xl mx-auto text-center">
         <div className="card p-6">
           <h2 className="text-xl font-medium mb-3">Demo Links</h2>
-          <ul className="grid sm:grid-cols-2 gap-3 text-sm">
-            <li><a className="button w-full" href="https://payroll.mediafinance.ai/" target="_blank" rel="noreferrer">Payroll Checker</a></li>
-            <li><a className="button w-full" href="https://flash.mediafinance.ai/" target="_blank" rel="noreferrer">Flash Budget Builder</a></li>
-            <li><a className="button w-full" href="/coming-soon-ap">AP Matcher</a></li>
-            <li><a className="button w-full" href="/coming-soon-vat">VAT Checker</a></li>
+          <ul className="grid sm:grid-cols-2 gap-3 justify-center place-items-center text-sm">
+            <li>
+              <a
+                className="button w-52 text-center"
+                href="https://payroll.mediafinance.ai/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Payroll Builder
+              </a>
+            </li>
+            <li>
+              <a
+                className="button w-52 text-center"
+                href="https://flash.mediafinance.ai/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Flash Budget Builder
+              </a>
+            </li>
+            <li>
+              <a className="button w-52 text-center" href="/coming-soon-ap">
+                AP Matcher
+              </a>
+            </li>
+            <li>
+              <a className="button w-52 text-center" href="/coming-soon-vat">
+                VAT Checker
+              </a>
+            </li>
           </ul>
         </div>
       </section>
@@ -66,11 +93,15 @@ export default function Page() {
           <div className="grid sm:grid-cols-2 gap-3 text-sm">
             <div className="card p-4 text-center">
               <div className="font-semibold mb-1">David Blank — Co-Founder</div>
-              <a className="underline" href="mailto:david@mediafinance.ai">david@mediafinance.ai</a>
+              <a className="underline" href="mailto:david@mediafinance.ai">
+                david@mediafinance.ai
+              </a>
             </div>
             <div className="card p-4 text-center">
               <div className="font-semibold mb-1">Laurence West — Co-Founder</div>
-              <a className="underline" href="mailto:laurence@mediafinance.ai">laurence@mediafinance.ai</a>
+              <a className="underline" href="mailto:laurence@mediafinance.ai">
+                laurence@mediafinance.ai
+              </a>
             </div>
           </div>
         </div>
