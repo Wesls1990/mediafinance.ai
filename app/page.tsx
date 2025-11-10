@@ -1,21 +1,44 @@
 export default function Page(){
   return (
     <div className="space-y-20">
-      {/* Hero */}
-      <section className="text-center pt-6">
-        <img src="/logo.png" alt="Media Finance AI" className="w-16 h-16 mx-auto mb-3 rounded" />
-        <div className="inline-block card px-4 py-1 small">AI budgeting • Compliance • Incentives • VAT</div>
-        <h1 className="mt-4 text-3xl sm:text-5xl font-semibold tracking-tight drop-shadow">
-          The future of film budgeting
-        </h1>
-        <p className="mt-3 text-lg text-gray-300 max-w-2xl mx-auto">
-          AI-driven. Studio-compliant. Built for Line Producers, Production Accountants and Finance Execs.
-        </p>
-        <div className="mt-6 flex items-center justify-center gap-3">
-          <a className="button" href="#demos">See demo links</a>
-          <a className="button" href="#contact" style={{background:'linear-gradient(90deg,#22c55e,#10b981)'}}>Contact</a>
-        </div>
-      </section>
+{/* Hero */}
+<section className="text-center pt-6">
+  <img
+    src="/logo-icon.png"
+    alt="Media Finance AI"
+    className="mx-auto mb-3 rounded"
+    style={{
+      width: 'clamp(72px, 12vw, 160px)', // responsive: 72px mobile → 160px desktop
+      height: 'auto',
+    }}
+  />
+
+  <div className="inline-block card px-4 py-1 small">
+    AI budgeting • Compliance • Incentives • VAT
+  </div>
+
+  <h1 className="mt-4 text-3xl sm:text-5xl font-semibold tracking-tight drop-shadow">
+    The future of film budgeting
+  </h1>
+
+  <p className="mt-3 text-lg text-gray-300 max-w-2xl mx-auto">
+    AI-driven. Studio-compliant. Built for Line Producers, Production
+    Accountants and Finance Execs.
+  </p>
+
+  <div className="mt-6 flex items-center justify-center gap-3">
+    <a className="button" href="#demos">
+      See demo links
+    </a>
+    <a
+      className="button"
+      href="#contact"
+      style={{ background: 'linear-gradient(90deg,#22c55e,#10b981)' }}
+    >
+      Contact
+    </a>
+  </div>
+</section>
 
       {/* About */}
       <section id="about" className="max-w-3xl mx-auto">
