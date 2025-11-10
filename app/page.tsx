@@ -5,12 +5,16 @@ export default function Page() {
       <section className="relative text-center pt-20 pb-8">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0b0b0d]/40 to-transparent pointer-events-none"></div>
 
+        {/* Transparent icon + text brand */}
         <img
-          src="/logo.png"
-          alt="Media Finance.Ai"
-          className="mx-auto mb-6 relative z-10"
-          style={{ width: 'clamp(160px, 22vw, 280px)', height: 'auto' }}
+          src="/logo-icon.png"
+          alt="Media Finance.Ai Logo Icon"
+          className="mx-auto mb-2 relative z-10"
+          style={{ width: 'clamp(90px, 18vw, 160px)', height: 'auto' }}
         />
+        <div className="text-2xl sm:text-3xl font-semibold tracking-tight mb-6 relative z-10">
+          MediaFinance.<span style={{ color: '#8b5cf6' }}>Ai</span>
+        </div>
 
         <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight drop-shadow leading-tight relative z-10">
           Financial Intelligence for
@@ -91,8 +95,8 @@ export default function Page() {
         <div className="card p-6">
           <h2 className="text-xl font-medium mb-3 text-left">Contact</h2>
           <p className="text-gray-300 mb-5 text-left">
-            We’re production accountants turned toolmakers. Enthusiastic inventors focused on making film finance easier and more accurate.
-            If you want a quick spin-through, drop us a line and we’ll tailor a short demo to your workflow.
+            We are production accountants turned toolmakers, enthusiastic inventors focused on making film finance better.
+            If you want a quick spin-through or a sandbox, drop us a line and we will tailor a short demo to your workflow.
           </p>
 
           <div className="grid sm:grid-cols-2 gap-3 text-sm justify-center">
