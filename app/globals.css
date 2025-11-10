@@ -67,3 +67,24 @@ main{ padding-top:88px }
 }
 .nav-link:hover{ opacity:1 }
 .nav-link.active{ text-decoration:underline }
+/* ...existing globals.css above... */
+
+/* ===== Sticky transparent header ===== */
+:root { --nav-h: 56px; }
+.nav-fixed{ position:fixed; top:0; left:0; right:0; z-index:50 }
+.nav-inner{
+  backdrop-filter:saturate(120%) blur(8px);
+  background: rgba(0,0,0,0);           /* transparent at all times */
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.nav-bar{ height: var(--nav-h); transition: height .2s ease; }
+
+/* Shrink on scroll */
+body.nav-shrink { --nav-h: 44px; }
+
+/* prevent content underlap */
+main{ padding-top:calc(var(--nav-h) + 32px); }
+
+/* nav links */
+.nav-link{ opacity:.9; transition:opacity .15s ease }
+.nav-link:hover{ opacity:1 }
