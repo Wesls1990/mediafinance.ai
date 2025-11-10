@@ -4,10 +4,17 @@ import Navbar from '../components/Navbar'
 
 export const metadata = {
   title: 'Media Finance AI — Flash',
-  description: 'The future of film budgeting. AI‑driven. Studio‑compliant.'
+  description: 'The future of film budgeting. AI-driven. Studio-compliant.',
+  icons: { icon: '/logo.png' }, // uses your real logo in /public
+  openGraph: {
+    title: 'Media Finance AI — Flash',
+    description: 'AI budgeting • Compliance • Incentives • VAT',
+    images: ['/logo.png']
+  },
+  twitter: { card: 'summary_large_image', images: ['/logo.png'] }
 }
 
-export default function RootLayout({ children }: { children: ReactNode }){
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
