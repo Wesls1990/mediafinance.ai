@@ -24,7 +24,7 @@ export default function Page() {
         </h1>
 
         <p className="mt-4 mb-4 text-lg text-gray-300 max-w-3xl mx-auto relative z-10">
-          A suite of approved, tested tools for production accountants and finance teams.
+          A suite of studio-approved, tested tools for FCs, Production Accountants, and finance teams.
         </p>
       </section>
 
@@ -33,10 +33,11 @@ export default function Page() {
         <div className="card p-6">
           <h2 className="text-xl font-medium mb-3">About MediaFinance.Ai</h2>
           <p className="text-gray-200">
-            MediaFinance.Ai builds practical, production-proven finance tools for film & HETV. Our goal is
-            simple: streamline complex financial workflows so crews can move faster with fewer errors and full
-            auditability. Founded by working production accountants, we design for real-world pressures—tight
-            timelines, changing schedules, and strict studio compliance.
+            MediaFinance.Ai builds practical, production-proven finance tools for film and HETV, built to work
+            alongside existing accounting software and systems. Our goal is simple: streamline complex financial
+            workflows and administrative burdens so crews can move faster with fewer errors and full auditability.
+            Founded by working production accountants, we design for real-world pressures — heavy workloads,
+            tight timelines, changing schedules, and strict studio compliance.
           </p>
         </div>
       </section>
@@ -46,7 +47,7 @@ export default function Page() {
         <div className="card p-6">
           <h2 className="text-xl font-medium mb-2 text-left">Demo Links</h2>
           <p className="text-sm text-gray-300 mb-4 text-left">
-            Working prototypes you can click through now. These are live builds shaped by real productions—expect rapid iteration.
+            Working prototypes you can click through now. These are live builds shaped by real productions — expect rapid iteration.
           </p>
           <ul className="grid sm:grid-cols-2 gap-3 justify-center place-items-center text-sm">
             <li>
@@ -90,7 +91,7 @@ export default function Page() {
         <div className="card p-6">
           <h2 className="text-xl font-medium mb-3 text-left">Contact</h2>
           <p className="text-gray-300 mb-5 text-left">
-            We’re production accountants turned toolmakers—enthusiastic inventors focused on making film finance better.
+            We’re production accountants turned toolmakers — enthusiastic inventors focused on making film finance better.
             If you want a quick spin-through or a sandbox, drop us a line and we’ll tailor a short demo to your workflow.
           </p>
 
