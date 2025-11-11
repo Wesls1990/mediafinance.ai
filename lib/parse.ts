@@ -28,25 +28,13 @@ export async function parseAnyFile(file: File) {
   let kind: ParseMeta['kind'] = 'unknown';
   let headers: string[] = [];
 
-  // -------- CSV ------------------------------------------------------------
-  if (name.endsWith('.csv') || (text.includes('\n') && text.includes(','))) {
-    kind = 'csv';
-    const lines = text.split(/\r?\n/).filter(l => l !== '');
-    const headerLine = lines.shift() || '';
-    headers = headerLine.split(',').map(s => s.trim());
-    rowsRaw = lines.map(line => {
-      const parts = splitCsv(line);
-      const obj: any = {};
-      headers.forEach((h, i) => (obj[h] = parts[i]));
-      return obj;
-    });
-  }
-  // -------- XML ------------------------------------------------------------
-  else if (name.endsWith('.xml') || text.trim().startsWith('<')) {
+  // -------- XML FIRST (fixes mis-detection of SpreadsheetML) --------------
+  if (name.endsWith('.xml') || text.trim().startsWith('<')) {
     // Detect Excel SpreadsheetML (XML Spreadsheet 2003)
     const isSpreadsheetML =
-      /<Workbook[^>]*schemas-microsoft-com:office:spreadsheet/i.test(text) ||
-      /xmlns(:\w+)?=.?urn:schemas-microsoft-com:office:spreadsheet.?/i.test(text);
+      /<Workbook\b[^>]*schemas-microsoft-com:office:spreadsheet/i.test(text) ||
+      /xmlns(?::\w+)?=["']urn:schemas-microsoft-com:office:spreadsheet["']/i.test(text) ||
+      /<Worksheet\b/i.test(text) && /<Table\b/i.test(text) && /<Row\b/i.test(text);
 
     if (isSpreadsheetML) {
       kind = 'xml';
@@ -60,6 +48,19 @@ export async function parseAnyFile(file: File) {
       rowsRaw = arrays.length ? arrays.sort((a, b) => scoreArray(b) - scoreArray(a))[0] : [];
       headers = rowsRaw.length ? Object.keys(rowsRaw[0]) : [];
     }
+  }
+  // -------- CSV (fallback) -------------------------------------------------
+  else if (name.endsWith('.csv') || (/\n/.test(text) && /,/.test(text))) {
+    kind = 'csv';
+    const lines = text.split(/\r?\n/).filter(l => l !== '');
+    const headerLine = lines.shift() || '';
+    headers = headerLine.split(',').map(s => s.trim());
+    rowsRaw = lines.map(line => {
+      const parts = splitCsv(line);
+      const obj: any = {};
+      headers.forEach((h, i) => (obj[h] = parts[i]));
+      return obj;
+    });
   }
   // -------- Unknown --------------------------------------------------------
   else {
@@ -156,7 +157,7 @@ function normalize(r: any, _idx: number): NormalizedRow {
     const s = v.toString().replace(/[^0-9\-\.\,]/g, '').replace(/,/g, '');
     const n = Number(s);
     return Number.isFinite(n) ? n : undefined;
-    };
+  };
 
   return {
     invoice : (invoiceVal ?? '').toString().trim(),
@@ -185,13 +186,12 @@ function parseSpreadsheetML(text: string): any[] {
     ? (Array.isArray(wb.Worksheet) ? wb.Worksheet : [wb.Worksheet])
     : [];
   const ws = worksheets[0];
-  const table = ws?.Table || ws?.['ss:Table'] || ws?.table;
+  const table = ws?.Table || ws?.['ss:Table'] || (ws as any)?.table;
   const rows = (table?.Row || table?.row || []) as any[];
 
   if (!rows || !rows.length) return [];
 
-  // Convert SpreadsheetML rows to arrays of cell values,
-  // honoring the 1-based ss:Index (sparse cells).
+  // Convert SpreadsheetML rows to arrays of cell values (handle 1-based ss:Index)
   const rowCells: string[][] = rows.map((row: any) => {
     const cells = row?.Cell || row?.cell || [];
     const arr = Array.isArray(cells) ? cells : [cells];
@@ -218,11 +218,11 @@ function parseSpreadsheetML(text: string): any[] {
     return values;
   });
 
-  // First non-empty row is header
+  // Header = first non-empty row
   const headerRow = rowCells.find(r => r?.some(x => (x || '').trim() !== '')) || [];
   const headers = headerRow.map(h => (h || '').trim());
 
-  // Remaining rows are data
+  // Data = remaining rows
   const dataRows = rowCells.slice(rowCells.indexOf(headerRow) + 1);
 
   const out: any[] = [];
