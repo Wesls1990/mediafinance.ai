@@ -1,10 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { parseAnyFile, type Parsed, type NormalizedRow } from '@/lib/parse';
-import { classifyVatVsCost } from '@/lib/classify';
-import { reconcile, type RateMap, type ReconResult } from '@/lib/reconcile';
-import { computeBoxes, type CostLine } from '@/lib/boxes';
+import { parseAnyFile, type Parsed, type NormalizedRow } from '../../lib/parse';
+import { classifyVatVsCost } from '../../lib/classify';
+import { reconcile, type RateMap, type ReconResult } from '../../lib/reconcile';
+import { computeBoxes, type CostLine } from '../../lib/boxes';
 
 export default function VATCheckerPage() {
   // Files + parsed
