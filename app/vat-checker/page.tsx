@@ -22,6 +22,7 @@ export default function VATCheckerPage() {
   const [boxes, setBoxes] = useState<{[k:number]: number} | null>(null);
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState<string>('');
+  const [showDiag, setShowDiag] = useState(false); // NEW
 
   const varianceIsZero = useMemo(() => {
     if (!result) return false;
@@ -172,6 +173,63 @@ export default function VATCheckerPage() {
             </div>
           )}
         </div>
+
+        {/* Diagnostics toggle + panels (NEW) */}
+        <div className="mt-4">
+          <button className="button" onClick={() => setShowDiag(s => !s)}>
+            {showDiag ? 'Hide diagnostics' : 'Show diagnostics'}
+          </button>
+        </div>
+
+        {showDiag && (
+          <div className="mt-4 grid sm:grid-cols-2 gap-4 text-sm">
+            {/* VAT diagnostics */}
+            <div className="p-4 rounded bg-white/5 border border-white/10 overflow-x-auto">
+              <div className="font-medium mb-2">VAT ledger diagnostics</div>
+              <div className="small mb-2">
+                File: <b>{vatFile?.name || '-'}</b><br/>
+                Kind: <b>{parsedVat?.meta.kind || '-'}</b> · Rows: <b>{parsedVat?.meta.count || 0}</b> ·{' '}
+                Invoice IDs: <b>{Math.round((parsedVat?.meta.invoicePresentRate || 0) * 100)}%</b> ·{' '}
+                7501 ratio: <b>{Math.round((parsedVat?.meta.vatAccountRatio || 0) * 100)}%</b>
+              </div>
+              <div className="small mb-1">Detected headers:</div>
+              <div className="small mb-2 whitespace-pre-wrap break-words">
+                {parsedVat?.meta.headers?.join(', ') || '—'}
+              </div>
+              <div className="small mb-1">First raw row:</div>
+              <pre className="text-xs bg-black/30 p-2 rounded overflow-x-auto">
+                {parsedVat?.meta.sampleRaw ? JSON.stringify(parsedVat.meta.sampleRaw, null, 2) : '—'}
+              </pre>
+              <div className="small mb-1 mt-2">First 3 normalized rows:</div>
+              <pre className="text-xs bg-black/30 p-2 rounded overflow-x-auto">
+                {parsedVat?.rows?.length ? JSON.stringify(parsedVat.rows.slice(0,3), null, 2) : '—'}
+              </pre>
+            </div>
+
+            {/* Cost diagnostics */}
+            <div className="p-4 rounded bg-white/5 border border-white/10 overflow-x-auto">
+              <div className="font-medium mb-2">Cost ledger diagnostics</div>
+              <div className="small mb-2">
+                File: <b>{costFile?.name || '-'}</b><br/>
+                Kind: <b>{parsedCost?.meta.kind || '-'}</b> · Rows: <b>{parsedCost?.meta.count || 0}</b> ·{' '}
+                Invoice IDs: <b>{Math.round((parsedCost?.meta.invoicePresentRate || 0) * 100)}%</b> ·{' '}
+                7501 ratio: <b>{Math.round((parsedCost?.meta.vatAccountRatio || 0) * 100)}%</b>
+              </div>
+              <div className="small mb-1">Detected headers:</div>
+              <div className="small mb-2 whitespace-pre-wrap break-words">
+                {parsedCost?.meta.headers?.join(', ') || '—'}
+              </div>
+              <div className="small mb-1">First raw row:</div>
+              <pre className="text-xs bg-black/30 p-2 rounded overflow-x-auto">
+                {parsedCost?.meta.sampleRaw ? JSON.stringify(parsedCost.meta.sampleRaw, null, 2) : '—'}
+              </pre>
+              <div className="small mb-1 mt-2">First 3 normalized rows:</div>
+              <pre className="text-xs bg-black/30 p-2 rounded overflow-x-auto">
+                {parsedCost?.rows?.length ? JSON.stringify(parsedCost.rows.slice(0,3), null, 2) : '—'}
+              </pre>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Summary */}
