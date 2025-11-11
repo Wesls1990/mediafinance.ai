@@ -1,24 +1,32 @@
-import type { NormalizedRow } from './parse';
+// lib/classify.ts
+import type { Parsed } from './parse';
 
-export function classifyVatVsCost(parsedArr: { file: File, rows: NormalizedRow[] }[]) {
-  let vat: any = null, cost: any = null;
+/**
+ * Classify which parsed file is VAT ledger vs Cost ledger.
+ * Since these SpreadsheetML exports don’t include 7501- accounts,
+ * we use the presence of "VAT ON <amount>" in Distribution Description.
+ */
+export function classifyVatVsCost(files: Parsed[]) {
+  if (!files || !files.length) return { vat: undefined, cost: undefined };
 
-  const startsWith7501 = (r: NormalizedRow) => (r.account || '').toString().startsWith('7501-');
-  parsedArr.forEach(p => {
+  const score = (p?: Parsed) => {
+    if (!p) return -1;
     const rows = p.rows || [];
-    const pct = rows.length ? rows.filter(startsWith7501).length / rows.length : 0;
-    if (pct > 0.6) vat = p; else cost = p;
-  });
+    if (!rows.length) return 0;
+    const vatOnCount = rows.filter(r => {
+      const d =
+        (r.raw?.['Distribution Description'] ??
+         r.raw?.['distribution description'] ??
+         '').toString();
+      return /vat\s*on\s*[0-9\.,\-]+/i.test(d);
+    }).length;
+    return vatOnCount / rows.length;
+  };
 
-  // fallback if ambiguous: pick the one with higher 7501 ratio as VAT
-  if (!vat || !cost) {
-    parsedArr.sort((a,b) => ratio(b) - ratio(a));
-    vat = parsedArr[0]; cost = parsedArr[1];
-  }
-  return { vat, cost };
+  const s0 = score(files[0]);
+  const s1 = score(files[1]);
 
-  function ratio(p: any) {
-    const rows = p?.rows || [];
-    return rows.length ? rows.filter(startsWith7501).length / rows.length : 0;
-    }
+  if (files.length === 1) return { vat: s0 >= 0.05 ? files[0] : undefined, cost: s0 < 0.05 ? files[0] : undefined };
+  if (s0 >= s1) return { vat: files[0], cost: files[1] };
+  return { vat: files[1], cost: files[0] };
 }
