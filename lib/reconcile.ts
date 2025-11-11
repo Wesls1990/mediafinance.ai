@@ -1,18 +1,9 @@
+// lib/reconcile.ts
 import type { NormalizedRow } from './parse';
 
 export type RateMap = {
-  std20?: string; red5?: string; red4?: string; zero?: string; exempt?: string; os?: string;
-  rcGoods?: string; rcServices?: string; sales20?: string; funding?: string;
-};
-
-export type ReconIssue = {
-  invoice: string;
-  supplier?: string;
-  costTotal: number;
-  expectedVat: number;
-  claimedVat: number;
-  flags: string[];
-  error: string;
+  std20: string; red5: string; red4: string; zero: string; exempt: string;
+  os: string; rcGoods: string; rcServices: string; sales20: string; funding: string;
 };
 
 export type ReconResult = {
@@ -21,116 +12,112 @@ export type ReconResult = {
   variance: number;
   countInvoices: number;
   countMatched: number;
-  mismatched: string[];
   missingInCost: string[];
   missingInVat: string[];
-  issues: ReconIssue[];
+  mismatched: { invoice: string; expectedVat: number; claimedVat: number; supplier?: string; error: string; costTotal: number; flags: string[] }[];
+  issues: any[];
   vatByInvoice: Record<string, number>;
-  flatCostLines: { invoice: string; supplier?: string; account: string; net: number; ff3?: string }[];
+  flatCostLines: NormalizedRow[];
 };
 
-export function reconcile(costParsed: {rows: NormalizedRow[]}, vatParsed: {rows: NormalizedRow[]}, map: RateMap): ReconResult {
-  const eq = (a?: string, b?: string) =>
-    !!a && !!b && a.toString().trim().toLowerCase() === b.toString().trim().toLowerCase();
+/**
+ * Reconciles VAT claimed vs expected.
+ * - costFile gives us expected VAT (based on FF3 mapping)
+ * - vatFile gives us claimed VAT (explicit vat field)
+ */
+export function reconcile(costParsed: { rows: NormalizedRow[] }, vatParsed: { rows: NormalizedRow[] }, mapping: RateMap): ReconResult {
+  const costRows = costParsed?.rows || [];
+  const vatRows = vatParsed?.rows || [];
 
-  const costRows = costParsed.rows.filter(r => r.invoice);
-  const vatRows  = vatParsed.rows.filter(r => r.invoice && (r.account||'').toString().startsWith('7501-'));
-
-  const costByInv = group(costRows, r => r.invoice);
-  const vatByInv: Record<string, number> = {};
-  for (const r of vatRows) {
-    vatByInv[r.invoice] = (vatByInv[r.invoice] || 0) + (r.vat || 0);
-  }
-
-  // Expected per invoice
-  const expByInv: Record<string, {expected: number, costTotal: number, supplier?: string, flags: Set<string>}> = {};
-  for (const inv of Object.keys(costByInv)) {
-    const lines = costByInv[inv];
-    const flags = new Set<string>();
-    let expected = 0, costTotal = 0, supplier: string | undefined;
-
-    for (const L of lines) {
-      if (L.supplier) supplier = L.supplier;
-      const net = L.net || 0;
-      const f = (L.ff3 || '').toString();
-      if (f) flags.add(f);
-
-      costTotal += net;
-
-      if (eq(f, map.std20)) expected += net * 0.20;
-      else if (eq(f, map.red5)) expected += net * 0.05;
-      else if (eq(f, map.red4)) expected += net * 0.04;
-      // 0/exempt/os/funding/rc/sales → expected 0 reclaim
+  // --- Build VAT claimed map ---
+  const vatByInvoice: Record<string, number> = {};
+  for (const row of vatRows) {
+    const inv = row.invoice?.trim().toUpperCase();
+    if (!inv) continue;
+    if (row.vat !== undefined && !isNaN(row.vat)) {
+      vatByInvoice[inv] = (vatByInvoice[inv] || 0) + row.vat;
     }
-    expByInv[inv] = { expected: round2(expected), costTotal: round2(costTotal), supplier, flags };
   }
 
-  const invoices = Array.from(new Set([...Object.keys(expByInv), ...Object.keys(vatByInv)]));
-  const issues: ReconIssue[] = [];
-  let expectedTotal = 0, claimedTotal = 0;
-  let countMatched = 0;
-  const mismatched: string[] = [];
+  // --- Compute expected VAT from cost file ---
+  const expectedByInvoice: Record<string, number> = {};
+  const rateMap: Record<string, number> = {};
+
+  const set = (k: string, v: string) => { if (v) rateMap[v] = rateFor(k); };
+  const rateFor = (k: string) => {
+    if (k === 'std20') return 0.2;
+    if (k === 'red5') return 0.05;
+    if (k === 'red4') return 0.04;
+    return 0.0;
+  };
+  set('std20', mapping.std20);
+  set('red5', mapping.red5);
+  set('red4', mapping.red4);
+
+  const flatCostLines: NormalizedRow[] = [];
+
+  for (const row of costRows) {
+    const inv = row.invoice?.trim().toUpperCase();
+    if (!inv) continue;
+    const ff3 = row.ff3?.trim() || '';
+    const rate = rateMap[ff3] ?? 0;
+    const net = row.net ?? 0;
+    if (net && rate) {
+      expectedByInvoice[inv] = (expectedByInvoice[inv] || 0) + net * rate;
+    }
+    flatCostLines.push(row);
+  }
+
+  // --- Reconcile ---
+  const allInvoices = new Set([...Object.keys(expectedByInvoice), ...Object.keys(vatByInvoice)]);
+  const issues: any[] = [];
   const missingInCost: string[] = [];
   const missingInVat: string[] = [];
+  const mismatched: any[] = [];
 
-  for (const inv of invoices) {
-    const exp = expByInv[inv]?.expected ?? 0;
-    const cst = expByInv[inv]?.costTotal ?? 0;
-    const sup = expByInv[inv]?.supplier;
-    const flg = Array.from(expByInv[inv]?.flags || []);
-    const clm = round2(vatByInv[inv] ?? 0);
+  let totalExpected = 0, totalClaimed = 0, matched = 0;
 
-    expectedTotal += exp;
-    claimedTotal += clm;
+  for (const inv of allInvoices) {
+    const expected = expectedByInvoice[inv] ?? 0;
+    const claimed = vatByInvoice[inv] ?? 0;
+    totalExpected += expected;
+    totalClaimed += claimed;
 
-    const diff = round2(exp - clm);
-    const tol = 0.01;
-
-    if (!(inv in expByInv)) {
-      issues.push({ invoice: inv, supplier: sup, costTotal: 0, expectedVat: 0, claimedVat: clm, flags: [], error: 'VAT claimed but no matching cost lines' });
-      missingInCost.push(inv);
-      continue;
-    }
-    if (!(inv in vatByInv)) {
-      issues.push({ invoice: inv, supplier: sup, costTotal: cst, expectedVat: exp, claimedVat: 0, flags: flg, error: 'No VAT claimed for this invoice' });
+    if (expected && claimed) {
+      matched++;
+      const diff = Math.abs(expected - claimed);
+      if (diff > 0.01) {
+        mismatched.push({
+          invoice: inv,
+          expectedVat: expected,
+          claimedVat: claimed,
+          error: `Mismatch: expected £${expected.toFixed(2)}, claimed £${claimed.toFixed(2)}`,
+          costTotal: expected / 0.2,
+          flags: [],
+        });
+      }
+    } else if (expected && !claimed) {
       missingInVat.push(inv);
-      continue;
-    }
-    if (Math.abs(diff) > tol) {
-      mismatched.push(inv);
-      const rateHint = flg.length ? ` Flags: ${flg.join(', ')}` : '';
-      issues.push({ invoice: inv, supplier: sup, costTotal: cst, expectedVat: exp, claimedVat: clm, flags: flg, error: `Mismatch: expected £${exp.toFixed(2)} vs claimed £${clm.toFixed(2)}.${rateHint}` });
-    } else {
-      countMatched++;
-    }
-
-    // Flag if expected is 0 but claim > 0
-    if (exp === 0 && clm > tol) {
-      issues.push({ invoice: inv, supplier: sup, costTotal: cst, expectedVat: exp, claimedVat: clm, flags: flg, error: 'Claimed VAT with 0%/non-reclaimable flags' });
+      issues.push({ invoice: inv, error: 'Claim missing in VAT ledger', costTotal: expected / 0.2, expectedVat: expected, claimedVat: 0, flags: [] });
+    } else if (!expected && claimed) {
+      missingInCost.push(inv);
+      issues.push({ invoice: inv, error: 'No matching cost ledger entry', costTotal: 0, expectedVat: 0, claimedVat: claimed, flags: [] });
     }
   }
+
+  const variance = totalExpected - totalClaimed;
 
   return {
-    expectedTotal: round2(expectedTotal),
-    claimedTotal: round2(claimedTotal),
-    variance: round2(expectedTotal - claimedTotal),
-    countInvoices: invoices.length,
-    countMatched,
-    mismatched,
+    expectedTotal: totalExpected,
+    claimedTotal: totalClaimed,
+    variance,
+    countInvoices: allInvoices.size,
+    countMatched: matched,
     missingInCost,
     missingInVat,
+    mismatched,
     issues,
-    vatByInvoice: vatByInv,
-    flatCostLines: costRows.map(r => ({ invoice: r.invoice, supplier: r.supplier, account: r.account, net: r.net || 0, ff3: r.ff3 }))
+    vatByInvoice,
+    flatCostLines,
   };
 }
-
-function group<T>(rows: T[], key: (r: T) => string) {
-  const out: Record<string, T[]> = {};
-  for (const r of rows) {
-    const k = key(r) || '';
-    (out[k] ||= []).push(r);
-  }
-  return out;
-}
-const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
