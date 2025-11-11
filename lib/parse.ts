@@ -10,21 +10,62 @@ export type NormalizedRow = {
   raw?: any;
 };
 
+export type ParseMeta = {
+  kind: 'csv' | 'xml' | 'unknown';
+  headers: string[];            // keys we detected
+  sampleRaw: any;               // first raw row
+  count: number;                // total rows parsed
+  invoicePresentRate: number;   // % rows with invoice id
+  vatAccountRatio: number;      // % rows with account starting 7501-
+};
+
 export async function parseAnyFile(file: File) {
   const name = file.name.toLowerCase();
   const text = await file.text();
-  let rows: any[] = [];
+  let rowsRaw: any[] = [];
+  let kind: ParseMeta['kind'] = 'unknown';
+  let headers: string[] = [];
 
-  if (name.endsWith('.csv') || text.includes('\n') && text.includes(',')) {
-    rows = parseCsv(text);
+  if (name.endsWith('.csv') || (text.includes('\n') && text.includes(','))) {
+    kind = 'csv';
+    const [head, ...lines] = text.split(/\r?\n/).filter(Boolean);
+    headers = (head || '').split(',').map(s => s.trim());
+    rowsRaw = lines.map(line => {
+      const parts = splitCsv(line);
+      const obj: any = {};
+      headers.forEach((h, i) => (obj[h] = parts[i]));
+      return obj;
+    });
   } else if (name.endsWith('.xml') || text.trim().startsWith('<')) {
-    rows = parseXml(text);
+    kind = 'xml';
+    const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '' });
+    const xml = parser.parse(text);
+    const arrays = findArrays(xml);
+    rowsRaw = arrays.length ? arrays.sort((a,b)=>scoreArray(b)-scoreArray(a))[0] : [];
+    headers = rowsRaw.length ? Object.keys(rowsRaw[0]) : [];
   } else {
-    rows = parseCsv(text); // best-effort default
+    rowsRaw = [];
   }
 
-  const normalized = rows.map((r, idx) => normalize(r, idx));
-  return { file, rows: normalized };
+  const rows = rowsRaw.map((r, i) => normalize(r, i));
+  const count = rows.length;
+  const invoicePresentRate = count ? rows.filter(r => r.invoice).length / count : 0;
+  const vatAccountRatio = count ? rows.filter(r => (r.account||'').startsWith('7501-')).length / count : 0;
+
+  return {
+    file,
+    rows,
+    meta: {
+      kind,
+      headers,
+      sampleRaw: rowsRaw[0],
+      count,
+      invoicePresentRate,
+      vatAccountRatio
+    } as ParseMeta
+  };
+
+  // helpers used above (splitCsv, findArrays, scoreArray, normalize) remain as you already have them
 }
 
 function parseCsv(text: string): any[] {
