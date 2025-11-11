@@ -1,9 +1,9 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { parseAnyFile } from '@/lib/parse';
-import { classifyVatVsCost } from '@/lib/classify';
-import { reconcile, type RateMap, type ReconResult } from '@/lib/reconcile';
-import { computeBoxes } from '@/lib/boxes';
+import { parseAnyFile } from '../../lib/parse';
+import { classifyVatVsCost } from '../../lib/classify';
+import { reconcile, type RateMap, type ReconResult } from '../../lib/reconcile';
+import { computeBoxes } from '../../lib/boxes';
 
 type Parsed = Awaited<ReturnType<typeof parseAnyFile>>;
 
