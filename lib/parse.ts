@@ -4,7 +4,7 @@ import { XMLParser } from 'fast-xml-parser';
 export type NormalizedRow = {
   invoice: string;
   supplier?: string;
-  account: string;
+  account: string;   // may be empty if not present in export
   net?: number;
   vat?: number;
   ff3?: string;
@@ -16,9 +16,11 @@ export type ParseMeta = {
   headers: string[];
   sampleRaw: any;
   count: number;
-  invoicePresentRate: number;
-  vatAccountRatio: number;
+  invoicePresentRate: number; // % rows with an invoice id
+  vatAccountRatio: number;    // % rows with account starting "7501-"
 };
+
+export type Parsed = Awaited<ReturnType<typeof parseAnyFile>>;
 
 export async function parseAnyFile(file: File) {
   const name = file.name.toLowerCase();
@@ -28,13 +30,12 @@ export async function parseAnyFile(file: File) {
   let kind: ParseMeta['kind'] = 'unknown';
   let headers: string[] = [];
 
-  // -------- XML FIRST (fixes mis-detection of SpreadsheetML) --------------
+  // -------- XML FIRST (handles SpreadsheetML correctly) --------------------
   if (name.endsWith('.xml') || text.trim().startsWith('<')) {
-    // Detect Excel SpreadsheetML (XML Spreadsheet 2003)
     const isSpreadsheetML =
       /<Workbook\b[^>]*schemas-microsoft-com:office:spreadsheet/i.test(text) ||
       /xmlns(?::\w+)?=["']urn:schemas-microsoft-com:office:spreadsheet["']/i.test(text) ||
-      /<Worksheet\b/i.test(text) && /<Table\b/i.test(text) && /<Row\b/i.test(text);
+      (/<Worksheet\b/i.test(text) && /<Table\b/i.test(text) && /<Row\b/i.test(text));
 
     if (isSpreadsheetML) {
       kind = 'xml';
@@ -127,51 +128,9 @@ function scoreArray(arr: any[]): number {
   return score;
 }
 
-// Normalize one record into our canonical shape
-function normalize(r: any, _idx: number): NormalizedRow {
-  const lower = (k: string) => k.toLowerCase().replace(/\s+/g, '');
-  const get = (cands: string[]) => {
-    for (const k of Object.keys(r)) {
-      const lk = lower(k);
-      if (cands.some(c => lk.includes(c))) return r[k];
-    }
-    return undefined;
-  };
-
-  const invoiceVal = get([
-    'invoice', 'invoiceno', 'invoicenumber', 'supplierinvoice',
-    'supplierref', 'reference', 'ref', 'doc', 'document', 'documentno', 'voucher', 'transaction'
-  ]);
-
-  const supplierVal = get(['supplier', 'suppliername', 'vendor', 'vendorname', 'name']);
-
-  const accountVal = get(['account', 'gl', 'glcode', 'nominal', 'code', 'glaccount']);
-
-  const netRaw = get(['net', 'goods', 'amountnet', 'netamount', 'lineamount', 'amount', 'base']);
-  const vatRaw = get(['vat', 'tax', 'vatr', 'vatamount', 'taxamount', 'vatvalue', 'taxvalue']);
-
-  const ff3Val = get(['ff3', 'freefield3', 'ff-3', 'ff_3', 'flag']);
-
-  const toNum = (v: any) => {
-    if (v === undefined || v === null || v === '') return undefined;
-    const s = v.toString().replace(/[^0-9\-\.\,]/g, '').replace(/,/g, '');
-    const n = Number(s);
-    return Number.isFinite(n) ? n : undefined;
-  };
-
-  return {
-    invoice : (invoiceVal ?? '').toString().trim(),
-    supplier: (supplierVal ?? '').toString().trim(),
-    account : (accountVal ?? '').toString().trim(),
-    net     : toNum(netRaw),
-    vat     : toNum(vatRaw),
-    ff3     : (ff3Val ?? '').toString().trim(),
-    raw     : r,
-  };
-}
-
-/* -------- SpreadsheetML (Excel XML 2003) parser -------------------------- */
-
+/**
+ * SpreadsheetML (Excel XML 2003) → array of row objects using first non-empty row as headers.
+ */
 function parseSpreadsheetML(text: string): any[] {
   const parser = new XMLParser({
     ignoreAttributes: false,
@@ -180,7 +139,6 @@ function parseSpreadsheetML(text: string): any[] {
   });
   const xml = parser.parse(text);
 
-  // Workbook / Worksheet / Table structure (namespace tolerant)
   const wb = (xml as any).Workbook || (xml as any)['ss:Workbook'] || xml;
   const worksheets = wb?.Worksheet
     ? (Array.isArray(wb.Worksheet) ? wb.Worksheet : [wb.Worksheet])
@@ -191,7 +149,7 @@ function parseSpreadsheetML(text: string): any[] {
 
   if (!rows || !rows.length) return [];
 
-  // Convert SpreadsheetML rows to arrays of cell values (handle 1-based ss:Index)
+  // Convert rows to arrays of values; respect 1-based ss:Index (sparse)
   const rowCells: string[][] = rows.map((row: any) => {
     const cells = row?.Cell || row?.cell || [];
     const arr = Array.isArray(cells) ? cells : [cells];
@@ -218,11 +176,11 @@ function parseSpreadsheetML(text: string): any[] {
     return values;
   });
 
-  // Header = first non-empty row
+  // First non-empty row = headers
   const headerRow = rowCells.find(r => r?.some(x => (x || '').trim() !== '')) || [];
   const headers = headerRow.map(h => (h || '').trim());
 
-  // Data = remaining rows
+  // Remaining rows = data
   const dataRows = rowCells.slice(rowCells.indexOf(headerRow) + 1);
 
   const out: any[] = [];
@@ -233,4 +191,64 @@ function parseSpreadsheetML(text: string): any[] {
     out.push(obj);
   }
   return out;
+}
+
+/* =========================== Normalization =============================== */
+
+/**
+ * Normalize SpreadsheetML AP export rows to our canonical shape.
+ * - invoice: from "Invoice Number" (fallback "Ref Number")
+ * - supplier: from "Vendor/Employee"
+ * - net/vat:
+ *    - if Distribution Description includes "VAT ON NNN", treat Amount as VAT and NNN as net base
+ *    - otherwise Amount is treated as net
+ * - ff3: from "FF3"
+ * - account: empty (not present in this export)
+ */
+function normalize(r: any, _idx: number): NormalizedRow {
+  const pick = (obj: any, keys: string[]) => {
+    for (const k of Object.keys(obj)) {
+      const lk = k.toLowerCase().trim();
+      if (keys.some(t => lk === t || lk.includes(t))) return obj[k];
+    }
+    return undefined;
+  };
+
+  const rawInvoice =
+    pick(r, ['invoice number', 'invoicenumber']) ??
+    pick(r, ['ref number', 'refnumber', 'reference', 'ref']);
+
+  const rawSupplier = pick(r, ['vendor/employee', 'vendor', 'supplier', 'suppliername', 'vendorname']);
+  const rawAmount   = pick(r, ['amount', 'line amount', 'net amount', 'net']);
+  const rawFF3      = pick(r, ['ff3', 'freefield3']);
+  const descr       = (pick(r, ['distribution description']) ?? '').toString();
+
+  const toNum = (v: any) => {
+    if (v === null || v === undefined || v === '') return undefined;
+    const s = v.toString().replace(/[^0-9\-\.,]/g, '').replace(/,/g, '');
+    const n = Number(s);
+    return Number.isFinite(n) ? n : undefined;
+  };
+
+  let vat: number | undefined;
+  let net: number | undefined;
+
+  // Detect "VAT ON 279.09" (or similar)
+  const m = /vat\s*on\s*([0-9\.,\-]+)/i.exec(descr);
+  if (m) {
+    vat = toNum(rawAmount);  // Amount column is VAT
+    net = toNum(m[1]);       // taxable base parsed from description
+  } else {
+    net = toNum(rawAmount);  // non-VAT rows: Amount is net
+  }
+
+  return {
+    invoice : (rawInvoice ?? '').toString().trim(),
+    supplier: (rawSupplier ?? '').toString().trim(),
+    account : '',  // not present in this export
+    net,
+    vat,
+    ff3     : (rawFF3 ?? '').toString().trim(),
+    raw     : r,
+  };
 }
