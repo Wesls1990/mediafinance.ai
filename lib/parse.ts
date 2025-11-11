@@ -13,11 +13,11 @@ export type NormalizedRow = {
 
 export type ParseMeta = {
   kind: 'csv' | 'xml' | 'unknown';
-  headers: string[];          // detected header keys
-  sampleRaw: any;             // first raw row (pre-normalization)
-  count: number;              // total parsed rows
-  invoicePresentRate: number; // % rows with an invoice id
-  vatAccountRatio: number;    // % rows with account starting "7501-"
+  headers: string[];
+  sampleRaw: any;
+  count: number;
+  invoicePresentRate: number;
+  vatAccountRatio: number;
 };
 
 export async function parseAnyFile(file: File) {
@@ -28,7 +28,7 @@ export async function parseAnyFile(file: File) {
   let kind: ParseMeta['kind'] = 'unknown';
   let headers: string[] = [];
 
-  // --- CSV path -------------------------------------------------------------
+  // -------- CSV ------------------------------------------------------------
   if (name.endsWith('.csv') || (text.includes('\n') && text.includes(','))) {
     kind = 'csv';
     const lines = text.split(/\r?\n/).filter(l => l !== '');
@@ -41,16 +41,27 @@ export async function parseAnyFile(file: File) {
       return obj;
     });
   }
-  // --- XML path -------------------------------------------------------------
+  // -------- XML ------------------------------------------------------------
   else if (name.endsWith('.xml') || text.trim().startsWith('<')) {
-    kind = 'xml';
-    const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '' });
-    const xml = parser.parse(text);
-    const arrays = findArrays(xml);
-    rowsRaw = arrays.length ? arrays.sort((a, b) => scoreArray(b) - scoreArray(a))[0] : [];
-    headers = rowsRaw.length ? Object.keys(rowsRaw[0]) : [];
+    // Detect Excel SpreadsheetML (XML Spreadsheet 2003)
+    const isSpreadsheetML =
+      /<Workbook[^>]*schemas-microsoft-com:office:spreadsheet/i.test(text) ||
+      /xmlns(:\w+)?=.?urn:schemas-microsoft-com:office:spreadsheet.?/i.test(text);
+
+    if (isSpreadsheetML) {
+      kind = 'xml';
+      rowsRaw = parseSpreadsheetML(text);
+      headers = rowsRaw.length ? Object.keys(rowsRaw[0]) : [];
+    } else {
+      kind = 'xml';
+      const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '' });
+      const xml = parser.parse(text);
+      const arrays = findArrays(xml);
+      rowsRaw = arrays.length ? arrays.sort((a, b) => scoreArray(b) - scoreArray(a))[0] : [];
+      headers = rowsRaw.length ? Object.keys(rowsRaw[0]) : [];
+    }
   }
-  // --- Unknown --------------------------------------------------------------
+  // -------- Unknown --------------------------------------------------------
   else {
     rowsRaw = [];
   }
@@ -74,8 +85,9 @@ export async function parseAnyFile(file: File) {
   };
 }
 
-/* ----------------------------- helpers ---------------------------------- */
+/* ============================ Helpers ==================================== */
 
+// naive CSV split (handles quoted fields)
 function splitCsv(line: string) {
   const out: string[] = [];
   let cur = '';
@@ -90,6 +102,7 @@ function splitCsv(line: string) {
   return out.map(s => s.trim());
 }
 
+// Find all arrays of objects within an XML object
 function findArrays(obj: any): any[] {
   const out: any[] = [];
   const visit = (o: any) => {
@@ -101,7 +114,7 @@ function findArrays(obj: any): any[] {
   return out;
 }
 
-// Prefer arrays whose objects have table-ish keys (account/invoice/etc.)
+// Prefer arrays that look "tabular"
 function scoreArray(arr: any[]): number {
   let score = 0;
   for (const r of arr.slice(0, 50)) {
@@ -113,6 +126,7 @@ function scoreArray(arr: any[]): number {
   return score;
 }
 
+// Normalize one record into our canonical shape
 function normalize(r: any, _idx: number): NormalizedRow {
   const lower = (k: string) => k.toLowerCase().replace(/\s+/g, '');
   const get = (cands: string[]) => {
@@ -142,7 +156,7 @@ function normalize(r: any, _idx: number): NormalizedRow {
     const s = v.toString().replace(/[^0-9\-\.\,]/g, '').replace(/,/g, '');
     const n = Number(s);
     return Number.isFinite(n) ? n : undefined;
-  };
+    };
 
   return {
     invoice : (invoiceVal ?? '').toString().trim(),
@@ -153,4 +167,70 @@ function normalize(r: any, _idx: number): NormalizedRow {
     ff3     : (ff3Val ?? '').toString().trim(),
     raw     : r,
   };
+}
+
+/* -------- SpreadsheetML (Excel XML 2003) parser -------------------------- */
+
+function parseSpreadsheetML(text: string): any[] {
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: '',
+    preserveOrder: false,
+  });
+  const xml = parser.parse(text);
+
+  // Workbook / Worksheet / Table structure (namespace tolerant)
+  const wb = (xml as any).Workbook || (xml as any)['ss:Workbook'] || xml;
+  const worksheets = wb?.Worksheet
+    ? (Array.isArray(wb.Worksheet) ? wb.Worksheet : [wb.Worksheet])
+    : [];
+  const ws = worksheets[0];
+  const table = ws?.Table || ws?.['ss:Table'] || ws?.table;
+  const rows = (table?.Row || table?.row || []) as any[];
+
+  if (!rows || !rows.length) return [];
+
+  // Convert SpreadsheetML rows to arrays of cell values,
+  // honoring the 1-based ss:Index (sparse cells).
+  const rowCells: string[][] = rows.map((row: any) => {
+    const cells = row?.Cell || row?.cell || [];
+    const arr = Array.isArray(cells) ? cells : [cells];
+
+    let pos = 0;
+    const values: string[] = [];
+    for (const c of arr) {
+      if (!c) continue;
+      const idxAttr = c.Index ?? c['ss:Index'];
+      if (idxAttr) {
+        const idx = Number(idxAttr);
+        if (Number.isFinite(idx) && idx > 0) {
+          while (pos < idx - 1) { values[pos++] = ''; }
+        }
+      }
+      const d = c.Data ?? c.data;
+      let v = '';
+      if (typeof d === 'string') v = d;
+      else if (d && typeof d === 'object') {
+        v = (d['#text'] ?? d._ ?? '').toString();
+      }
+      values[pos++] = v;
+    }
+    return values;
+  });
+
+  // First non-empty row is header
+  const headerRow = rowCells.find(r => r?.some(x => (x || '').trim() !== '')) || [];
+  const headers = headerRow.map(h => (h || '').trim());
+
+  // Remaining rows are data
+  const dataRows = rowCells.slice(rowCells.indexOf(headerRow) + 1);
+
+  const out: any[] = [];
+  for (const arr of dataRows) {
+    if (!arr || !arr.some(x => (x || '').trim() !== '')) continue;
+    const obj: any = {};
+    headers.forEach((h, i) => { if (h) obj[h] = arr[i] ?? ''; });
+    out.push(obj);
+  }
+  return out;
 }
