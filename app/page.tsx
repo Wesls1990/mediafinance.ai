@@ -82,7 +82,7 @@ export default function Page() {
               </a>
             </li>
             <li>
-              <a className="button w-52 text-center" href="/coming-soon-vat">
+              <a className="button w-52 text-center" href="/vat-checker">
                 VAT Checker
               </a>
             </li>
