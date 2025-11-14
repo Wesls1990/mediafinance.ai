@@ -52,7 +52,7 @@ export default function Page() {
       </section>
 
       {/* Pitch Deck baked into homepage (reusing #demos anchor) */}
-      <section id="demos" className="max-w-3xl mx-auto">
+      <section id="pitch" className="max-w-3xl mx-auto">
         <div className="card p-6 space-y-6">
           <h2 className="text-xl font-medium text-left">MediaFinance.Ai in 8 Slides</h2>
           <p className="text-sm text-gray-300 text-left">
