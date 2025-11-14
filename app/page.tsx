@@ -17,7 +17,7 @@ export default function Page() {
         </div>
 
         <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight drop-shadow leading-tight relative z-10">
-          The AI Operating System for
+          The Ai Operating Suite for
           <br />
           <span
             className="bg-clip-text text-transparent"
@@ -28,7 +28,7 @@ export default function Page() {
         </h1>
 
         <p className="mt-4 mb-4 text-lg text-gray-300 max-w-3xl mx-auto relative z-10">
-          MediaFinance.Ai is building an end-to-end, AI-native production finance platform for film and HETV — designed to sit
+          MediaFinance.Ai is building an end-to-end, Ai-native production finance platform for film and HETV, designed to sit
           alongside existing accounting systems and quietly automate the work nobody has time for.
         </p>
       </section>
@@ -40,11 +40,11 @@ export default function Page() {
           <p className="text-gray-200">
             MediaFinance.Ai builds practical, production-proven finance workflows for film and HETV, with a simple goal:
             streamline complex financial processes so crews can move faster with fewer errors and full auditability.
-            Founded by working production accountants, we design for real-world pressures — heavy workloads, tight timelines,
+            Founded by working production accountants, we design for real-world pressures, heavy workloads, tight timelines,
             changing schedules, global tax incentives, and strict studio compliance.
           </p>
           <p className="text-gray-200 mt-3">
-            Our long-term vision is an AI-powered, end-to-end production finance stack: budgets, cost reports, approvals,
+            Our long-term vision is an Ai-powered, end-to-end production finance stack: budgets, cost reports, approvals,
             payroll bridges, incentives, VAT, AP, and audit trails, all orchestrated by a single intelligent layer that
             works with the tools productions already use.
           </p>
@@ -56,37 +56,37 @@ export default function Page() {
         <div className="card p-6 space-y-6">
           <h2 className="text-xl font-medium text-left">MediaFinance.Ai in 8 Slides</h2>
           <p className="text-sm text-gray-300 text-left">
-            An AI-first production finance platform, outlined the way we’d pitch it to studios, investors, and partners — all on one page.
+            An Ai-first production finance platform, outlined the way we’d pitch it to studios, investors, and partners:
           </p>
 
           {/* 01 Problem */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-100 mb-1">01 — The Problem</h3>
+            <h3 className="text-sm font-semibold text-gray-100 mb-1">01 The Problem</h3>
             <p className="text-gray-300 text-sm">
-              Production finance is still driven by spreadsheets, PDFs, and desktop software. Data is re-keyed multiple times
-              across budgeting, payroll, AP, VAT, and incentives. Approvals live in email threads. Compliance is manual. Audits
-              are forensic exercises. Nothing is truly real-time.
+              Production finance is still driven by spreadsheets, multiple log-ins, and outdated desktop software. Data is re-keyed multiple times
+              across budgeting, payroll, AP, PC, and budgets. Approvals live in email threads, or on third-party signing tools. Compliance is manual. Audits
+              are forensic exercises. Nothing is truly real-time or 100% accurate.
             </p>
           </div>
 
           {/* 02 Vision */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-100 mb-1">02 — The Vision</h3>
+            <h3 className="text-sm font-semibold text-gray-100 mb-1">02 The Vision</h3>
             <p className="text-gray-300 text-sm">
-              An AI-native operating system for production finance: one layer that understands the budget, the schedule, the
-              ledger, and the studio manual — and uses that intelligence to draft, check, route, and reconcile financial data
+              An Ai-native operating system for production finance: one layer that understands the budget, the schedule, the
+              ledger, and the studio manual, and uses that intelligence to draft, check, route, and reconcile financial data
               automatically, while humans supervise and approve.
             </p>
           </div>
 
           {/* 03 Product: OS, not a tool */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-100 mb-1">03 — What We’re Building</h3>
+            <h3 className="text-sm font-semibold text-gray-100 mb-1">03 What We’re Building</h3>
             <p className="text-gray-300 text-sm mb-2">
               MediaFinance.Ai is not a single tool. It’s a connected stack of AI services designed around real productions:
             </p>
             <ul className="list-disc list-inside text-gray-300 text-sm space-y-1">
-              <li>AI Budget Engine – from script or outline to studio-ready top sheet.</li>
+              <li>Ai Budget Engine – from script or outline to studio-ready top sheet.</li>
               <li>Live Cost Reporting – forecasts, variances, and burn-rate in real time.</li>
               <li>Incentive &amp; VAT Engine – all lines tagged and reconciled to boxes and rebates.</li>
               <li>Approvals &amp; Workflow – POs, overages, savings, and sign-offs with full audit trails.</li>
@@ -96,17 +96,17 @@ export default function Page() {
 
           {/* 04 Works with existing systems */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-100 mb-1">04 — Built to Work Alongside Existing Systems</h3>
+            <h3 className="text-sm font-semibold text-gray-100 mb-1">04 Built to Work Alongside Existing Systems</h3>
             <p className="text-gray-300 text-sm">
-              We don’t ask productions to rip out PSL+, SmartAccounting, Netsuite, Xero, or Sargent Disc. MediaFinance.Ai
-              sits on top as an AI coordination layer, ingesting ledgers, POs, timesheets, and invoices, then pushing back
-              clean, coded, compliance-ready data.
+              We don’t ask productions to rip out PSL+, SmartAccounting, or Sargent Disc. MediaFinance.Ai
+              sits on top as an Ai coordination layer, ingesting ledgers, POs, timesheets, and invoices, then pushing back
+              clean, compliance-ready data.
             </p>
           </div>
 
           {/* 05 Who it's for */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-100 mb-1">05 — Who We Serve</h3>
+            <h3 className="text-sm font-semibold text-gray-100 mb-1">05 Who We Serve</h3>
             <ul className="list-disc list-inside text-gray-300 text-sm space-y-1">
               <li>Studios and streamers needing real-time, audit-ready oversight across slates.</li>
               <li>Line Producers and Finance Controllers juggling budgets, overages, and approvals.</li>
@@ -117,7 +117,7 @@ export default function Page() {
 
           {/* 06 Why us */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-100 mb-1">06 — Why Us</h3>
+            <h3 className="text-sm font-semibold text-gray-100 mb-1">06 Why Us</h3>
             <p className="text-gray-300 text-sm mb-2">
               MediaFinance.Ai is founded by working production accountants who have run multiple large-scale UK and
               international shows. We’ve:
@@ -131,10 +131,10 @@ export default function Page() {
 
           {/* 07 Roadmap */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-100 mb-1">07 — Roadmap</h3>
+            <h3 className="text-sm font-semibold text-gray-100 mb-1">07 Roadmap</h3>
             <ul className="list-disc list-inside text-gray-300 text-sm space-y-1">
               <li>
-                <span className="font-semibold">Now:</span> Codify production finance rules, workflows, and incentives as reusable AI “brains”.
+                <span className="font-semibold">Now:</span> Codify production finance rules, workflows, and incentives as reusable Ai “brains”.
               </li>
               <li>
                 <span className="font-semibold">Next 12 months:</span> Deepen prototypes into private betas across budgeting, VAT/incentives,
@@ -149,7 +149,7 @@ export default function Page() {
 
           {/* 08 How to engage */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-100 mb-1">08 — How We Work With You</h3>
+            <h3 className="text-sm font-semibold text-gray-100 mb-1">08 How We Work With You</h3>
             <p className="text-gray-300 text-sm mb-2">
               We’re not selling a generic SaaS seat. We co-design with real productions:
             </p>
