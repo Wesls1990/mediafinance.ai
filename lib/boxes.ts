@@ -1,6 +1,7 @@
 import type { RateMap } from './reconcile';
 
-type CostLine = { invoice: string; supplier?: string; account: string; net: number; ff3?: string };
+// 👇 add `export` here
+export type CostLine = { invoice: string; supplier?: string; account: string; net: number; ff3?: string };
 
 export function computeBoxes(costLines: CostLine[], vatClaimByInv: Record<string, number>, map: RateMap) {
   const is = (f?: string, t?: string) => !!f && !!t && f.toString().trim().toLowerCase() === t.toString().trim().toLowerCase();
@@ -24,7 +25,7 @@ export function computeBoxes(costLines: CostLine[], vatClaimByInv: Record<string
     else if (is(f, map.red4)) expectedReclaim += L.net * 0.04;
   }
 
-  const claimedReclaim = Object.values(vatClaimByInv).reduce((a,b)=>a+b,0);
+  const claimedReclaim = Object.values(vatClaimByInv).reduce((a, b) => a + b, 0);
 
   const box1 = salesNet * 0.20;
   const box2 = 0;
